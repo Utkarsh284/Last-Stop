@@ -1,0 +1,12 @@
+# Godot editor cache / imports
+.godot/
+*.tmp
+*.translation
+
+# Local Godot engine binaries (download separately)
+tools/godot/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/

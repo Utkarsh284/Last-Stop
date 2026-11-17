@@ -1,0 +1,24 @@
+[gd_scene format=3]
+
+[ext_resource type="Material" path="res://assets/materials/dark_metal.tres" id="1_7t3f8"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_851di"]
+material = ExtResource("1_7t3f8")
+size = Vector3(2.4, 1, 0.1)
+
+[node name="DepartureBoard" type="Node3D" unique_id=172572342]
+
+[node name="Frame" type="MeshInstance3D" parent="." unique_id=329382525]
+mesh = SubResource("BoxMesh_851di")
+
+[node name="Text" type="Label3D" parent="." unique_id=1966118737]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.055)
+pixel_size = 0.0026
+modulate = Color(0.95, 0.62, 0.25, 0.85)
+text = "DEPARTURES
+
+06:40   KESSEL YARD          CANCELLED
+07:15   NORTH TERMINUS       CANCELLED
+08:05   ASH CREEK            CANCELLED
+--:--   ALL SERVICES         SUSPENDED"
+font_size = 28

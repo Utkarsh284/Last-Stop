@@ -1,0 +1,107 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/main/game.gd" id="1_game"]
+[ext_resource type="Material" path="res://assets/materials/ground_dirt.tres" id="2_ground"]
+[ext_resource type="PackedScene" path="res://scenes/environment/railway_track.tscn" id="3_track"]
+[ext_resource type="Script" path="res://scripts/environment/travel_scenery.gd" id="4_scenery"]
+[ext_resource type="PackedScene" path="res://scenes/environment/props/telegraph_pole.tscn" id="5_pole"]
+[ext_resource type="PackedScene" path="res://scenes/environment/props/dead_tree.tscn" id="6_tree"]
+[ext_resource type="PackedScene" path="res://scenes/environment/props/rock.tscn" id="7_rock"]
+[ext_resource type="Script" path="res://scripts/systems/station_manager.gd" id="8_stations"]
+[ext_resource type="Resource" path="res://data/stations/main_route.tres" id="9_route"]
+[ext_resource type="PackedScene" path="res://scenes/train/train.tscn" id="10_train"]
+[ext_resource type="PackedScene" path="res://scenes/player/player.tscn" id="11_player"]
+[ext_resource type="Script" path="res://scripts/systems/mouse_capture.gd" id="12_capture"]
+[ext_resource type="PackedScene" path="res://scenes/ui/hud.tscn" id="13_hud"]
+
+[sub_resource type="ProceduralSkyMaterial" id="SkyMat_dusk"]
+sky_top_color = Color(0.16, 0.17, 0.18, 1)
+sky_horizon_color = Color(0.36, 0.34, 0.3, 1)
+ground_bottom_color = Color(0.08, 0.08, 0.08, 1)
+ground_horizon_color = Color(0.36, 0.34, 0.3, 1)
+
+[sub_resource type="Sky" id="Sky_dusk"]
+sky_material = SubResource("SkyMat_dusk")
+
+[sub_resource type="Environment" id="Env_wasteland"]
+background_mode = 2
+sky = SubResource("Sky_dusk")
+ambient_light_source = 3
+ambient_light_energy = 0.35
+tonemap_mode = 2
+fog_enabled = true
+fog_light_color = Color(0.36, 0.35, 0.32, 1)
+fog_density = 0.035
+
+[sub_resource type="BoxMesh" id="Mesh_ground"]
+material = ExtResource("2_ground")
+size = Vector3(400, 1, 400)
+
+[sub_resource type="BoxShape3D" id="Shape_ground"]
+size = Vector3(400, 1, 400)
+
+[node name="Game" type="Node3D"]
+script = ExtResource("1_game")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Env_wasteland")
+
+[node name="Sun" type="DirectionalLight3D" parent="."]
+rotation = Vector3(-0.45, 0.9, 0)
+light_color = Color(1, 0.86, 0.68, 1)
+light_energy = 0.7
+shadow_enabled = true
+shadow_bias = 0.3
+shadow_normal_bias = 3.0
+directional_shadow_mode = 1
+directional_shadow_max_distance = 50.0
+
+[node name="TravelScenery" type="Node3D" parent="." node_paths=PackedStringArray("train", "scroll")]
+script = ExtResource("4_scenery")
+train = NodePath("../Train")
+scroll = NodePath("Scroll")
+pole_scene = ExtResource("5_pole")
+tree_scene = ExtResource("6_tree")
+rock_scene = ExtResource("7_rock")
+
+[node name="Scroll" type="Node3D" parent="TravelScenery"]
+
+[node name="Ground" type="StaticBody3D" parent="TravelScenery/Scroll"]
+position = Vector3(0, -0.5, 0)
+
+[node name="Mesh" type="MeshInstance3D" parent="TravelScenery/Scroll/Ground"]
+mesh = SubResource("Mesh_ground")
+
+[node name="Collision" type="CollisionShape3D" parent="TravelScenery/Scroll/Ground"]
+shape = SubResource("Shape_ground")
+
+[node name="TrackA" parent="TravelScenery/Scroll" instance=ExtResource("3_track")]
+position = Vector3(0, 0, -120)
+
+[node name="TrackB" parent="TravelScenery/Scroll" instance=ExtResource("3_track")]
+position = Vector3(0, 0, -60)
+
+[node name="TrackC" parent="TravelScenery/Scroll" instance=ExtResource("3_track")]
+
+[node name="TrackD" parent="TravelScenery/Scroll" instance=ExtResource("3_track")]
+position = Vector3(0, 0, 60)
+
+[node name="TrackE" parent="TravelScenery/Scroll" instance=ExtResource("3_track")]
+position = Vector3(0, 0, 120)
+
+[node name="StationRoot" type="Node3D" parent="."]
+
+[node name="StationManager" type="Node" parent="." node_paths=PackedStringArray("train", "station_root")]
+script = ExtResource("8_stations")
+route = ExtResource("9_route")
+train = NodePath("../Train")
+station_root = NodePath("../StationRoot")
+
+[node name="Train" parent="." instance=ExtResource("10_train")]
+
+[node name="Player" parent="." instance=ExtResource("11_player")]
+
+[node name="MouseCapture" type="Node" parent="."]
+script = ExtResource("12_capture")
+
+[node name="HUD" parent="." instance=ExtResource("13_hud")]

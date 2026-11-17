@@ -1,0 +1,202 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/main/sandbox.gd" id="1_main"]
+[ext_resource type="PackedScene" path="res://scenes/player/player.tscn" id="2_player"]
+[ext_resource type="Script" path="res://scripts/systems/mouse_capture.gd" id="5_capture"]
+
+[sub_resource type="ProceduralSkyMaterial" id="SkyMat_dusk"]
+sky_top_color = Color(0.16, 0.17, 0.18, 1)
+sky_horizon_color = Color(0.36, 0.34, 0.3, 1)
+ground_bottom_color = Color(0.08, 0.08, 0.08, 1)
+ground_horizon_color = Color(0.36, 0.34, 0.3, 1)
+
+[sub_resource type="Sky" id="Sky_dusk"]
+sky_material = SubResource("SkyMat_dusk")
+
+[sub_resource type="Environment" id="Env_wasteland"]
+background_mode = 2
+sky = SubResource("Sky_dusk")
+ambient_light_source = 3
+ambient_light_energy = 0.35
+tonemap_mode = 2
+fog_enabled = true
+fog_light_color = Color(0.36, 0.35, 0.32, 1)
+fog_density = 0.035
+
+[sub_resource type="StandardMaterial3D" id="Mat_ground"]
+albedo_color = Color(0.2, 0.19, 0.16, 1)
+roughness = 1.0
+
+[sub_resource type="StandardMaterial3D" id="Mat_rust"]
+albedo_color = Color(0.36, 0.2, 0.12, 1)
+metallic = 0.6
+roughness = 0.75
+
+[sub_resource type="StandardMaterial3D" id="Mat_concrete"]
+albedo_color = Color(0.34, 0.33, 0.31, 1)
+roughness = 0.95
+
+[sub_resource type="BoxShape3D" id="Shape_stair_ramp"]
+size = Vector3(2, 0.1, 2.36)
+
+[sub_resource type="LabelSettings" id="LS_debug"]
+font_size = 20
+font_color = Color(0.72, 0.7, 0.66, 1)
+
+[sub_resource type="LabelSettings" id="LS_hint"]
+font_size = 20
+font_color = Color(0.82, 0.55, 0.32, 1)
+
+[node name="MovementSandbox" type="Node3D"]
+script = ExtResource("1_main")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Env_wasteland")
+
+[node name="Sun" type="DirectionalLight3D" parent="."]
+rotation = Vector3(-0.45, 0.9, 0)
+light_color = Color(1, 0.86, 0.68, 1)
+light_energy = 0.7
+shadow_enabled = true
+directional_shadow_mode = 1
+directional_shadow_max_distance = 50.0
+
+[node name="Level" type="Node3D" parent="."]
+
+[node name="Ground" type="CSGBox3D" parent="Level"]
+position = Vector3(0, -0.5, 0)
+use_collision = true
+size = Vector3(60, 1, 60)
+material = SubResource("Mat_ground")
+
+[node name="Crate" type="CSGBox3D" parent="Level"]
+position = Vector3(-2.6, 0.5, 1)
+rotation = Vector3(0, 0.35, 0)
+use_collision = true
+size = Vector3(1.2, 1, 1.2)
+material = SubResource("Mat_rust")
+
+[node name="Wall" type="CSGBox3D" parent="Level"]
+position = Vector3(0, 1.5, -14)
+use_collision = true
+size = Vector3(10, 3, 0.4)
+material = SubResource("Mat_concrete")
+
+[node name="RampPlatform" type="CSGBox3D" parent="Level"]
+position = Vector3(6, 0.9, -6)
+use_collision = true
+size = Vector3(3, 1.8, 3)
+material = SubResource("Mat_concrete")
+
+[node name="Ramp" type="CSGBox3D" parent="Level"]
+position = Vector3(6, 0.806, -2.062)
+rotation = Vector3(0.349, 0, 0)
+use_collision = true
+size = Vector3(2.5, 0.2, 5.263)
+material = SubResource("Mat_concrete")
+
+[node name="StairPlatform" type="CSGBox3D" parent="Level"]
+position = Vector3(-6, 0.625, -6)
+use_collision = true
+size = Vector3(3, 1.25, 3)
+material = SubResource("Mat_concrete")
+
+[node name="Stairs" type="Node3D" parent="Level"]
+position = Vector3(-6, 0, 0)
+
+[node name="Step1" type="CSGBox3D" parent="Level/Stairs"]
+position = Vector3(0, 0.125, -2.7)
+size = Vector3(2, 0.25, 0.4)
+material = SubResource("Mat_concrete")
+
+[node name="Step2" type="CSGBox3D" parent="Level/Stairs"]
+position = Vector3(0, 0.25, -3.1)
+size = Vector3(2, 0.5, 0.4)
+material = SubResource("Mat_concrete")
+
+[node name="Step3" type="CSGBox3D" parent="Level/Stairs"]
+position = Vector3(0, 0.375, -3.5)
+size = Vector3(2, 0.75, 0.4)
+material = SubResource("Mat_concrete")
+
+[node name="Step4" type="CSGBox3D" parent="Level/Stairs"]
+position = Vector3(0, 0.5, -3.9)
+size = Vector3(2, 1, 0.4)
+material = SubResource("Mat_concrete")
+
+[node name="Step5" type="CSGBox3D" parent="Level/Stairs"]
+position = Vector3(0, 0.625, -4.3)
+size = Vector3(2, 1.25, 0.4)
+material = SubResource("Mat_concrete")
+
+[node name="StairCollider" type="StaticBody3D" parent="Level/Stairs"]
+position = Vector3(0, 0.6, -3.5)
+rotation = Vector3(0.5586, 0, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Level/Stairs/StairCollider"]
+shape = SubResource("Shape_stair_ramp")
+
+[node name="Player" parent="." instance=ExtResource("2_player")]
+position = Vector3(0, 0, 8)
+
+[node name="MouseCapture" type="Node" parent="."]
+script = ExtResource("5_capture")
+
+[node name="Overlay" type="CanvasLayer" parent="."]
+
+[node name="Crosshair" type="ColorRect" parent="Overlay"]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -2.0
+offset_top = -2.0
+offset_right = 2.0
+offset_bottom = 2.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.9, 0.87, 0.8, 0.85)
+
+[node name="Margin" type="MarginContainer" parent="Overlay"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 64
+theme_override_constants/margin_top = 56
+theme_override_constants/margin_right = 64
+theme_override_constants/margin_bottom = 56
+
+[node name="Stack" type="VBoxContainer" parent="Overlay/Margin"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 6
+alignment = 2
+
+[node name="Title" type="Label" parent="Overlay/Margin/Stack"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.87, 0.8, 1)
+theme_override_font_sizes/font_size = 48
+text = "LAST STOP"
+
+[node name="Subtitle" type="Label" parent="Overlay/Margin/Stack"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.82, 0.55, 0.32, 1)
+theme_override_font_sizes/font_size = 20
+text = "DEV  ·  MOVEMENT SANDBOX"
+
+[node name="DebugLabel" type="Label" parent="Overlay/Margin/Stack"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "—"
+label_settings = SubResource("LS_debug")
+
+[node name="HintLabel" type="Label" parent="Overlay/Margin/Stack"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "—"
+label_settings = SubResource("LS_hint")

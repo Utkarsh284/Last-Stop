@@ -1,0 +1,30 @@
+[gd_scene format=3]
+
+[ext_resource type="Material" path="res://assets/materials/dark_metal.tres" id="1_15q4v"]
+[ext_resource type="Material" path="res://assets/materials/emergency_red.tres" id="2_rlr5u"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_ixos5"]
+material = ExtResource("1_15q4v")
+size = Vector3(0.3, 0.12, 0.1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_h7yvy"]
+material = ExtResource("2_rlr5u")
+size = Vector3(0.24, 0.07, 0.03)
+
+[node name="EmergencyLight" type="OmniLight3D" unique_id=410112322]
+light_color = Color(1, 0.15, 0.1, 1)
+light_energy = 0.8
+omni_range = 6.0
+
+[node name="Housing" type="MeshInstance3D" parent="." unique_id=1046869811]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.03)
+visibility_range_end = 15.0
+visibility_range_end_margin = 1.0
+mesh = SubResource("BoxMesh_ixos5")
+
+[node name="Lens" type="MeshInstance3D" parent="." unique_id=239423703]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.03)
+cast_shadow = 0
+visibility_range_end = 15.0
+visibility_range_end_margin = 1.0
+mesh = SubResource("BoxMesh_h7yvy")

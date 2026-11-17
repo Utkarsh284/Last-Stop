@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="StationData" format=3]
+
+[ext_resource type="Script" path="res://scripts/systems/station_data.gd" id="1_data"]
+[ext_resource type="PackedScene" path="res://scenes/stations/mile_214_siding.tscn" id="2_scene"]
+
+[resource]
+script = ExtResource("1_data")
+id = &"mile_214_siding"
+display_name = "Mile 214 Siding"
+description = "A forgotten halt in the middle of nowhere"
+scene = ExtResource("2_scene")

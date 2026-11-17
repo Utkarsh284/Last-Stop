@@ -1,0 +1,50 @@
+[gd_scene format=3]
+
+[ext_resource type="Material" path="res://assets/materials/dark_metal.tres" id="1_sn5yl"]
+[ext_resource type="Material" path="res://assets/materials/dark_metal_double_sided.tres" id="2_xme2p"]
+[ext_resource type="Material" path="res://assets/materials/bulb_warm.tres" id="3_oia05"]
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_mk36n"]
+material = ExtResource("1_sn5yl")
+top_radius = 0.006
+bottom_radius = 0.006
+height = 0.45
+radial_segments = 16
+rings = 1
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_ss8ct"]
+material = ExtResource("2_xme2p")
+top_radius = 0.04
+bottom_radius = 0.17
+height = 0.14
+radial_segments = 16
+rings = 1
+cap_bottom = false
+
+[sub_resource type="SphereMesh" id="SphereMesh_l0uug"]
+material = ExtResource("3_oia05")
+radius = 0.05
+height = 0.1
+radial_segments = 12
+rings = 6
+
+[node name="HangingLamp" type="OmniLight3D" unique_id=1509132316]
+light_color = Color(1, 0.78, 0.52, 1)
+light_energy = 1.2
+light_specular = 0.3
+omni_range = 5.5
+
+[node name="Cord" type="MeshInstance3D" parent="." unique_id=1553403325]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.35, 0)
+cast_shadow = 0
+mesh = SubResource("CylinderMesh_mk36n")
+
+[node name="Shade" type="MeshInstance3D" parent="." unique_id=553976746]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.1, 0)
+mesh = SubResource("CylinderMesh_ss8ct")
+
+[node name="Bulb" type="MeshInstance3D" parent="." unique_id=198229776]
+cast_shadow = 0
+visibility_range_end = 15.0
+visibility_range_end_margin = 1.0
+mesh = SubResource("SphereMesh_l0uug")

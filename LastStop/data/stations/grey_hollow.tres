@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="StationData" format=3]
+
+[ext_resource type="Script" path="res://scripts/systems/station_data.gd" id="1_data"]
+[ext_resource type="PackedScene" path="res://scenes/stations/grey_hollow.tscn" id="2_scene"]
+
+[resource]
+script = ExtResource("1_data")
+id = &"grey_hollow"
+display_name = "Grey Hollow"
+description = "Abandoned station  ·  scavenge with care"
+scene = ExtResource("2_scene")

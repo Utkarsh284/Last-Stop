@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="RouteData" format=3]
+
+[ext_resource type="Script" path="res://scripts/systems/route_data.gd" id="1_route"]
+[ext_resource type="Script" path="res://scripts/systems/station_data.gd" id="2_station_data"]
+[ext_resource type="Resource" path="res://data/stations/mile_214_siding.tres" id="3_mile"]
+[ext_resource type="Resource" path="res://data/stations/grey_hollow.tres" id="4_grey"]
+
+[resource]
+script = ExtResource("1_route")
+stations = Array[ExtResource("2_station_data")]([ExtResource("3_mile"), ExtResource("4_grey")])
+travel_seconds = 20.0

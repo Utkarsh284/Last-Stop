@@ -1,0 +1,56 @@
+[gd_scene format=3]
+
+[ext_resource type="Material" path="res://assets/materials/dark_metal.tres" id="1_c3l8w"]
+[ext_resource type="Material" path="res://assets/materials/rust_metal.tres" id="2_qcxyj"]
+[ext_resource type="Material" path="res://assets/materials/paper.tres" id="3_cbxmn"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_3dxkx"]
+material = ExtResource("1_c3l8w")
+size = Vector3(0.6, 0.7, 0.6)
+
+[sub_resource type="BoxMesh" id="BoxMesh_qs8bm"]
+material = ExtResource("2_qcxyj")
+size = Vector3(0.5, 0.6, 0.02)
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_god7v"]
+material = ExtResource("3_cbxmn")
+top_radius = 0.05
+bottom_radius = 0.05
+height = 0.03
+radial_segments = 16
+rings = 1
+
+[sub_resource type="BoxMesh" id="BoxMesh_rpy27"]
+material = ExtResource("3_cbxmn")
+size = Vector3(0.04, 0.14, 0.04)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_ef15n"]
+size = Vector3(0.6, 0.7, 0.6)
+
+[node name="Safe" type="StaticBody3D" unique_id=552471552]
+
+[node name="Body" type="MeshInstance3D" parent="." unique_id=479347880]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.35, 0)
+mesh = SubResource("BoxMesh_3dxkx")
+
+[node name="Door" type="MeshInstance3D" parent="." unique_id=1860392131]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.35, 0.305)
+mesh = SubResource("BoxMesh_qs8bm")
+
+[node name="Dial" type="MeshInstance3D" parent="." unique_id=667333711]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, 0.1, 0.42, 0.32)
+cast_shadow = 0
+visibility_range_end = 15.0
+visibility_range_end_margin = 1.0
+mesh = SubResource("CylinderMesh_god7v")
+
+[node name="Handle" type="MeshInstance3D" parent="." unique_id=21403427]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.12, 0.35, 0.33)
+cast_shadow = 0
+visibility_range_end = 15.0
+visibility_range_end_margin = 1.0
+mesh = SubResource("BoxMesh_rpy27")
+
+[node name="Collision" type="CollisionShape3D" parent="." unique_id=958441617]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.35, 0)
+shape = SubResource("BoxShape3D_ef15n")
