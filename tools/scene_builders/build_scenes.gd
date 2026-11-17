@@ -315,6 +315,29 @@ func csg_box(parent: Node, node_name: String, size: Vector3, pos: Vector3, mat: 
 	return _own(c, parent)
 
 
+## Adds an Interactable component to [param parent] (a collision object).
+func interactable(parent: Node, display_name: String, action: String, hold_time: float = 0.0) -> Node:
+	var it: Node = load("res://scripts/interaction/interactable.gd").new()
+	it.name = "Interactable"
+	it.display_name = display_name
+	it.action = action
+	it.hold_time = hold_time
+	return _own(it, parent)
+
+
+## Invisible Area3D on the "interaction" layer (2) that only the interaction ray sees.
+func interaction_hotspot(parent: Node, node_name: String, size: Vector3, pos: Vector3) -> Area3D:
+	var area := Area3D.new()
+	area.name = node_name
+	area.position = pos
+	area.collision_layer = 2
+	area.collision_mask = 0
+	area.monitoring = false
+	_own(area, parent)
+	collider_box(area, size, Vector3.ZERO)
+	return area
+
+
 func instance(parent: Node, path: String, node_name: String, pos: Vector3, rot_y_deg: float = 0.0) -> Node3D:
 	var n: Node3D = load(path).instantiate()
 	n.name = node_name
@@ -519,7 +542,8 @@ func _build_workbench() -> void:
 
 
 ## 2.4 m driver console. Instruments sit on a sloped panel facing the driver (+Z).
-## "Instruments/DepartureLever" becomes the departure interaction in a later milestone.
+## "Instruments/DepartureLever" is animated by TrainController; the
+## "Instruments/DepartureHotspot" area around it carries its Interactable.
 func _build_control_console() -> void:
 	var r := _begin(StaticBody3D.new(), "ControlConsole")
 	box(r, "Base", Vector3(2.4, 0.9, 0.6), Vector3(0, 0.45, 0), m_dark)
@@ -542,6 +566,11 @@ func _build_control_console() -> void:
 	_build_lever(inst, "ThrottleLever", Vector3(0.52, surface, 0.06), m_dark, 0.015, 0.035)
 	box(inst, "DepartureLeverPlate", Vector3(0.12, 0.02, 0.2), Vector3(0.85, surface + 0.01, 0.0), m_rust, Vector3.ZERO, false)
 	_build_lever(inst, "DepartureLever", Vector3(0.85, surface, 0.0), m_dark, 0.02, 0.05, m_red)
+	# Generous hotspot so the small lever is easy to aim at; it pokes out above
+	# the console collider, so the ray reaches it before the console body.
+	var hotspot := interaction_hotspot(inst, "DepartureHotspot", Vector3(0.3, 0.45, 0.4),
+			Vector3(0.85, surface + 0.18, 0.0))
+	interactable(hotspot, "Departure lever", "Depart")
 	var glow := OmniLight3D.new()
 	glow.name = "InstrumentGlow"
 	glow.position = Vector3(0, 1.25, 0.25)
@@ -770,14 +799,6 @@ func _build_interior(r: Node) -> void:
 	var cabin := node3d(interior, "ControlCabin", Vector3.ZERO)
 	instance(cabin, TRAIN_PROPS + "control_console.tscn", "ControlConsole", Vector3(0, f, -8.7))
 	instance(cabin, TRAIN_PROPS + "driver_seat.tscn", "DriverSeat", Vector3(-0.45, f, -7.7), 180)
-	# TEMPORARY departure control until the interaction system (Milestone 5).
-	var trigger := Area3D.new()
-	trigger.set_script(load("res://scripts/train/departure_trigger.gd"))
-	trigger.name = "DepartureTrigger"
-	trigger.position = Vector3(0.3, f + 1.0, -7.6)
-	trigger.monitorable = false
-	_own(trigger, cabin)
-	collider_box(trigger, Vector3(1.6, 2.0, 1.6), Vector3.ZERO)
 	var cab_lamp: OmniLight3D = instance(cabin, ENV_PROPS + "hanging_lamp.tscn", "CabinLamp", Vector3(0.3, CEIL_Y - LAMP_DROP, -6.8))
 	cab_lamp.light_energy = 0.5
 
@@ -1054,10 +1075,32 @@ func _merged_boxes(parts: Array, mat: Material) -> ArrayMesh:
 	return mesh
 
 
-## Instances a prop and tags it as a future loot container (Milestones 5–6).
+## Display name and search time (s) per loot container prop.
+const LOOT_INFO := {
+	"crate": ["Crate", 1.0],
+	"crate_small": ["Small crate", 0.8],
+	"suitcase": ["Suitcase", 1.0],
+	"luggage_cart": ["Luggage cart", 1.2],
+	"vending_machine": ["Vending machine", 1.5],
+	"filing_cabinet": ["Filing cabinet", 1.2],
+	"safe": ["Safe", 2.5],
+	"storage_locker": ["Locker", 1.2],
+	"drinks_fridge": ["Drinks fridge", 1.0],
+	"cash_register": ["Till", 1.0],
+	"workbench": ["Workbench", 1.2],
+	"car_wreck": ["Car wreck", 2.0],
+}
+
+
+## Instances a prop as a loot container: tagged "loot_container" and given a
+## one-shot, hold-to-search Interactable. Milestone 6 fills it with loot.
 func loot(parent: Node, path: String, node_name: String, pos: Vector3, rot_y_deg: float = 0.0) -> Node3D:
 	var n := instance(parent, path, node_name, pos, rot_y_deg)
 	n.add_to_group("loot_container", true)
+	var info: Array = LOOT_INFO[path.get_file().get_basename()]
+	var it := interactable(n, info[0], "Search", info[1])
+	it.one_shot = true
+	it.used_label = "Searched"
 	return n
 
 

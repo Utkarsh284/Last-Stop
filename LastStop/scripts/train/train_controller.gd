@@ -7,6 +7,10 @@ extends Node3D
 ## moving-platform physics. Each physics frame the controller emits
 ## [signal travelled] with the distance covered; [StationManager] and
 ## [TravelScenery] move the world by that amount along the train's +Z.
+##
+## The departure lever on the console is an [Interactable]: using it calls
+## [method request_departure]. It is disabled (with a reason) while moving
+## and is animated forward while the train is under way.
 
 enum State { PARKED, DEPARTING, TRAVELLING, ARRIVING }
 
@@ -32,6 +36,13 @@ signal doors_changed(is_open: bool)
 ## Seconds to open or close.
 @export var door_duration: float = 1.1
 
+@export_group("Departure lever")
+## Lever angle (radians, around its X axis) at rest and when pulled.
+@export var lever_rest_angle: float = -0.4
+@export var lever_pulled_angle: float = 0.45
+## Seconds for the lever to swing.
+@export var lever_duration: float = 0.25
+
 var state: State = State.PARKED
 ## Current speed in m/s.
 var speed: float = 0.0
@@ -40,7 +51,12 @@ var doors_open: bool = false
 var _remaining: float = 0.0
 var _door_tween: Tween
 var _doors_closed_z: Array[float] = []
+var _lever_tween: Tween
 
+## The departure lever's Interactable. The game scene sets its action text
+## (e.g. "Depart for Grey Hollow"); the train handles enabling and use.
+@onready var departure_control: Interactable = 		$Interior/ControlCabin/ControlConsole/Instruments/DepartureHotspot/Interactable
+@onready var _lever: Node3D = $Interior/ControlCabin/ControlConsole/Instruments/DepartureLever
 @onready var _doors: Array[AnimatableBody3D] = [$Doors/DoorLeft, $Doors/DoorRight]
 @onready var _aboard_area: Area3D = $AboardArea
 
@@ -49,6 +65,10 @@ func _ready() -> void:
 	for door in _doors:
 		_doors_closed_z.append(door.position.z)
 	_set_doors_instant(true)
+	departure_control.disabled_reason = "Train in motion"
+	departure_control.interacted.connect(func(_by: Node) -> void: request_departure())
+	_lever.rotation.x = lever_rest_angle
+	_update_departure_control()
 
 
 func _physics_process(delta: float) -> void:
@@ -126,7 +146,20 @@ func _arrive() -> void:
 
 func _set_state(new_state: State) -> void:
 	state = new_state
+	_update_departure_control()
 	state_changed.emit(state)
+
+
+func _update_departure_control() -> void:
+	var parked := state == State.PARKED
+	departure_control.enabled = parked
+	var angle := lever_rest_angle if parked else lever_pulled_angle
+	if is_equal_approx(_lever.rotation.x, angle):
+		return
+	if _lever_tween:
+		_lever_tween.kill()
+	_lever_tween = create_tween().set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	_lever_tween.tween_property(_lever, "rotation:x", angle, lever_duration)
 
 
 func _is_door_moving() -> bool:

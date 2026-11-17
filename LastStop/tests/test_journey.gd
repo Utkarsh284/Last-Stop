@@ -1,6 +1,8 @@
 extends SceneTree
 ## Automated journey test for Milestone 3: departure rules, doors, travel and
 ## arrival between stations, using the real game scene and simulated input.
+## Since Milestone 5 departure goes through the real interaction ray: the
+## player looks at the departure lever and presses E.
 ##   Godot_console.exe --headless --path . --script res://tests/test_journey.gd
 ## Speeds and distances are raised/shortened so a round trip takes seconds.
 
@@ -12,7 +14,7 @@ var _scene: Node
 var _player: PlayerController
 var _train: TrainController
 var _stations: StationManager
-var _trigger: DepartureTrigger
+var _ray: InteractionRay
 var _scenery: TravelScenery
 var _failures: int = 0
 var _states_seen: Array[int] = []
@@ -29,7 +31,7 @@ func _run() -> void:
 	_player = _scene.get_node("Player")
 	_train = _scene.get_node("Train")
 	_stations = _scene.get_node("StationManager")
-	_trigger = _scene.get_node("Train/Interior/ControlCabin/DepartureTrigger")
+	_ray = _scene.get_node("Player/Head/Camera3D/InteractionRay")
 	_scenery = _scene.get_node("TravelScenery")
 
 	# Fast-forward settings for testing.
@@ -76,7 +78,9 @@ func _test_refuses_when_not_aboard() -> void:
 func _test_journey(expected_id: StringName) -> void:
 	var label := String(expected_id)
 	await _place(Vector3(0.4, FLOOR_Y, -7.9))  # at the controls
-	_check("[%s] departure prompt in range" % label, _trigger.player_in_range, "")
+	await _aim_at_lever()
+	_check("[%s] looking at the departure lever focuses it" % label, _ray.target == _train.departure_control,
+			"target=%s" % [_ray.target])
 	_states_seen.clear()
 
 	# Press E for one physics frame, exactly like a player would.
@@ -139,6 +143,16 @@ func _test_exit_at_new_station() -> void:
 
 
 # --- Helpers -----------------------------------------------------------------
+
+func _aim_at_lever() -> void:
+	var hotspot := _train.departure_control.get_parent() as Node3D
+	var head := _player.get_node("Head") as Node3D
+	var to := hotspot.global_position - head.global_position
+	_player.rotation.y = atan2(-to.x, -to.z)
+	head.rotation.x = atan2(to.y, Vector2(to.x, to.z).length())
+	await physics_frame
+	await physics_frame
+
 
 func _stop_error() -> float:
 	var station := _stations.get_current_scene()

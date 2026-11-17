@@ -37,14 +37,14 @@ Folders are created when a milestone first needs them, never left empty.
 | `scenes/player/`, `scripts/player/` | Player controller and components       | 1 ✔       |
 | `tests/`               | Headless automated tests (excluded from export)     | 1 ✔       |
 | `scenes/train/`, `scenes/train/props/` | Train carriage and its furniture    | 2 ✔       |
-| `scripts/train/`       | `TrainController`, temporary `DepartureTrigger`     | 3 ✔       |
+| `scripts/train/`       | `TrainController` (journey, doors, departure lever) | 3 ✔       |
 | `scenes/stations/`, `scripts/stations/` | Station scenes + `Station` base script | 3–4 ✔ |
 | `scenes/environment/kit/` | Modular 2 m wall pieces (plaster, brick × 7 kinds) | 4 ✔ |
 | `data/stations/`       | `StationData` per station + `main_route.tres`       | 3 ✔       |
 | `scripts/environment/` | `TravelScenery`, `FlickerLight`                     | 3–4 ✔     |
 | `scenes/environment/`  | Railway track + reusable props (crates, drums, lamps) | 2 ✔ (more in 4) |
 | `assets/materials/`    | Shared procedural materials (`.tres`)               | 2 ✔       |
-| `scripts/interaction/` | Interactable component, interaction raycast         | 5         |
+| `scripts/interaction/` | `Interactable` component, `InteractionRay`          | 5 ✔       |
 | `scenes/items/`, `resources/items/`, `resources/loot_tables/` | Item definitions and loot | 6–7 |
 | `scripts/inventory/`   | Inventory component                                 | 7         |
 | `scripts/survival/`    | Health / hunger / thirst / stamina                  | 8         |
@@ -75,7 +75,7 @@ Folders are created when a milestone first needs them, never left empty.
 | Living / sleeping | −3 … 3.3 | Bunk bed, barrel stove, table, crates |
 | Storage | 3.3 … 9 | Shelving, workbench, fuel drums, `StorageLocker`, sealed rear door |
 
-- Root script: `TrainController` (see Journey below). Exterior sliding `Doors`, an `AboardArea`, and a temporary `DepartureTrigger` at the controls.
+- Root script: `TrainController` (see Journey below). Exterior sliding `Doors`, an `AboardArea`, and the departure lever (an `Interactable`, see Interaction below).
 - `Shell` is one `CSGCombiner3D` (walls, floor, ceiling, partitions, cut-outs) with collision.
 - `PlayerSpawn` (Marker3D) is where the player starts.
 - Props are separate scenes, so the console, locker and workbench can get interaction components later without touching the train.
@@ -85,7 +85,7 @@ Folders are created when a milestone first needs them, never left empty.
 
 The train **never moves**. The world scrolls past it ("treadmill"), so the player walks around inside at full speed with no moving-platform physics.
 
-1. At the controls, **E** → `TrainController.request_departure()`. Refused (with a HUD message) unless the player is aboard. Milestone 10 adds fuel checks in `get_departure_block_reason()`.
+1. Look at the red departure lever on the console and press **E** → `TrainController.request_departure()`. Refused (with a HUD message) unless the player is aboard. Milestone 10 adds fuel checks in `get_departure_block_reason()`.
 2. Doors close → the train accelerates to 16 m/s (58 km/h). Each physics frame it emits `travelled(distance)`.
 3. `StationManager` moves the departing station away and frees it at 300 m. `TravelScenery` scrolls the ground/track (wrapping every 60 m) and streams poles, dead trees and rocks out of the fog.
 4. After `RouteData.travel_seconds` (and once cruising, with the old station gone), the next station spawns exactly one braking distance ahead and the train brakes along `v = √(2·a·d)`, stopping exactly on its `TrainStop`.
@@ -108,10 +108,27 @@ Abandoned station on a 0.35 m concrete plinth (x 1.7…31, z −32…32, station
 | Goods warehouse | x 22–30, z −22…−6 | Brick; 4 m gateway, forklift wreck, pallets, workbench; storeroom lit by a red emergency light |
 | Yard / fields | rest | Car wreck, broken fence, fallen pole, grass, bushes, ivy, dead trees; invisible bounds at x −20…52, z ±55 |
 
-- **22 loot containers** are tagged with the `loot_container` group (interactive from Milestones 5–6). All are reachable on foot (verified by navmesh in `test_station.gd`).
+- **22 loot containers** are tagged with the `loot_container` group and can be searched (Milestone 5); Milestone 6 puts loot in them. All are reachable on foot (verified by navmesh in `test_station.gd`).
 - The scripted tour of every building is 165 m (≈ 41 s of walking); with searching, a visit takes roughly 3–5 minutes.
 - `Bounds` (invisible walls) only collide while the train is parked there (`Station.on_train_arrived/departing`).
 - **Kit:** `scenes/environment/kit/wall_<plaster|brick>_<wall|door|window|opening|ticket|broken|low>.tscn`. 2 m × 3 m × 0.2 m, origin at the bottom centre, wall along local X. Door openings 1.2 × 2.3 m; window sills 1.0 m (not climbable).
+
+## Interaction (Milestone 5)
+
+Look at something within **2.2 m** and the HUD shows what it is and what **E** does.
+
+- **`Interactable`** (`scripts/interaction/interactable.gd`) — a plain `Node` added as a child of any collision object. Exports: `display_name`, `action`, `hold_time` (0 = press, otherwise hold E), `one_shot` + `used_label`, `enabled` + `disabled_reason`. Signals `interacted(interactor)` and `changed`. It registers itself as metadata on its parent, so the parent needs no script.
+- **`InteractionRay`** (`scripts/interaction/interaction_ray.gd`, on `Player/Head/Camera3D`) — ray from the camera each physics frame. Solid geometry (layer 1 `world`) blocks it, so nothing works through walls. Small parts use an invisible `Area3D` hotspot on layer 2 `interaction` (only the ray sees it). Signals `focus_changed`, `hold_progress_changed`, `interacted`. `probe(from, to)` runs the same check from any point (used by the tests).
+- After an interaction, or when you look at something new while already holding E, you have to release E before the next one. One press never does two things.
+- Releasing the mouse (Esc) turns the ray off.
+- HUD: object name, key, action, hold bar (if it's a hold), and an amber crosshair when the object can be used. Objects you can't use right now show a grey status instead of the key ("Searched", "Train in motion").
+
+| Object | Action | Notes |
+|---|---|---|
+| Departure lever (train console) | Press: "Depart for <next station>" | Owned by `TrainController.departure_control`. Swings forward while under way; disabled with "Train in motion". |
+| 22 Grey Hollow loot containers | Hold: "Search" (0.8 s small crate … 2.5 s safe) | One-shot → "Searched". Shows "Nothing useful here." until Milestone 6 adds loot (hook: `InteractionRay.interacted` in `game.gd`). |
+
+**Making something interactable:** add an `Interactable` child to its `StaticBody3D`. For a part too small to aim at, add an `Area3D` with `collision_layer = 2`, `collision_mask = 0`, `monitoring = false` and a slightly oversized shape, then put the `Interactable` under it. Connect `interacted` wherever the behaviour lives. In the scene builder, use `interactable()` and `interaction_hotspot()`. Containers made with `loot()` get one automatically (names and search times are in `LOOT_INFO`).
 
 ### Scene builder
 
@@ -120,6 +137,8 @@ The train, props, kit, track, roadside scenery, station scenes and materials are
 Godot_v4.7.2-stable_win64_console.exe --path . --script ../tools/scene_builders/build_scenes.gd
 ```
 Run it **without `--headless`** (a window flashes briefly): the headless renderer discards MultiMesh data, so grass and sleepers would be saved empty. The builder refuses to run headless.
+
+Regenerating changes every node's random `unique_id`, even in scenes whose content didn't change. Discard files where that is the only change before committing.
 
 On save, static meshes that share a material are merged into one mesh per material (fewer draw calls). Moving parts (doors), levers and the flickering tube are kept separate.
 **It overwrites the generated scenes and materials.** Once you edit a generated scene by hand in the editor, keep editing there and don't re-run the builder.
@@ -131,6 +150,7 @@ Godot_v4.7.2-stable_win64_console.exe --headless --path . --script res://tests/t
 Godot_v4.7.2-stable_win64_console.exe --headless --path . --script res://tests/test_train.gd
 Godot_v4.7.2-stable_win64_console.exe --headless --path . --script res://tests/test_journey.gd
 Godot_v4.7.2-stable_win64_console.exe --headless --path . --script res://tests/test_station.gd
+Godot_v4.7.2-stable_win64_console.exe --headless --path . --script res://tests/test_interaction.gd
 ```
 Exit code 0 = all passed.
 
