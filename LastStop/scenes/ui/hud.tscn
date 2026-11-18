@@ -79,6 +79,10 @@ corner_radius_top_right = 3
 corner_radius_bottom_right = 3
 corner_radius_bottom_left = 3
 
+[sub_resource type="LabelSettings" id="LS_loot_header"]
+font_size = 14
+font_color = Color(0.86, 0.58, 0.32, 1)
+
 [node name="HUD" type="CanvasLayer"]
 script = ExtResource("1_hud")
 
@@ -232,3 +236,34 @@ offset_right = 900.0
 offset_bottom = -40.0
 grow_vertical = 0
 label_settings = SubResource("LS_hint")
+
+[node name="LootPanel" type="PanelContainer" parent="."]
+unique_name_in_owner = true
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -428.0
+offset_top = -40.0
+offset_right = -64.0
+offset_bottom = 40.0
+grow_horizontal = 0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("SB_prompt")
+
+[node name="Rows" type="VBoxContainer" parent="LootPanel"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 6
+
+[node name="LootHeader" type="Label" parent="LootPanel/Rows"]
+unique_name_in_owner = true
+layout_mode = 2
+label_settings = SubResource("LS_loot_header")
+
+[node name="LootRows" type="VBoxContainer" parent="LootPanel/Rows"]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 4

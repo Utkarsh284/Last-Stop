@@ -56,6 +56,11 @@ var _lever_tween: Tween
 ## The departure lever's Interactable. The game scene sets its action text
 ## (e.g. "Depart for Grey Hollow"); the train handles enabling and use.
 @onready var departure_control: Interactable = 		$Interior/ControlCabin/ControlConsole/Instruments/DepartureHotspot/Interactable
+## The train's storage. Items deposited here are safe between stations.
+@onready var storage: InventoryComponent = $Storage
+## The storage locker's Interactable. Using it opens [member storage]
+## (the game scene shows the inventory screen).
+@onready var storage_control: Interactable = $Interior/StorageArea/StorageLocker/Interactable
 @onready var _lever: Node3D = $Interior/ControlCabin/ControlConsole/Instruments/DepartureLever
 @onready var _doors: Array[AnimatableBody3D] = [$Doors/DoorLeft, $Doors/DoorRight]
 @onready var _aboard_area: Area3D = $AboardArea

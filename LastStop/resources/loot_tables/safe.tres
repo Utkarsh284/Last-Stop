@@ -1,0 +1,43 @@
+[gd_resource type="Resource" script_class="LootTable" format=3]
+
+[ext_resource type="Script" path="res://scripts/loot/loot_entry.gd" id="1_entry"]
+[ext_resource type="Script" path="res://scripts/loot/loot_table.gd" id="1_table"]
+[ext_resource type="Resource" path="res://resources/items/pistol_rounds.tres" id="2_pistol_rounds"]
+[ext_resource type="Resource" path="res://resources/items/battery.tres" id="3_battery"]
+[ext_resource type="Resource" path="res://resources/items/first_aid_kit.tres" id="4_first_aid_kit"]
+[ext_resource type="Resource" path="res://resources/items/revolver.tres" id="5_revolver"]
+
+[sub_resource type="Resource" id="Entry_1"]
+script = ExtResource("1_entry")
+item = ExtResource("2_pistol_rounds")
+weight = 4
+min_quantity = 6
+max_quantity = 12
+
+[sub_resource type="Resource" id="Entry_2"]
+script = ExtResource("1_entry")
+item = ExtResource("3_battery")
+weight = 3
+min_quantity = 1
+max_quantity = 2
+
+[sub_resource type="Resource" id="Entry_3"]
+script = ExtResource("1_entry")
+item = ExtResource("4_first_aid_kit")
+weight = 2
+min_quantity = 1
+max_quantity = 1
+
+[sub_resource type="Resource" id="Entry_4"]
+script = ExtResource("1_entry")
+item = ExtResource("5_revolver")
+weight = 1
+min_quantity = 1
+max_quantity = 1
+
+[resource]
+script = ExtResource("1_table")
+entries = Array[ExtResource("1_entry")]([SubResource("Entry_1"), SubResource("Entry_2"), SubResource("Entry_3"), SubResource("Entry_4")])
+empty_chance = 0.0
+min_picks = 2
+max_picks = 3

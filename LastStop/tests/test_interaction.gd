@@ -160,10 +160,17 @@ func _test_hold_search(containers: Array[Node3D], standpoints: Dictionary) -> vo
 	await _wait(it.hold_time + 0.15)
 	_check("full hold searches the container", it.used and _interactions.size() == 1 and _interactions[0] == it,
 			"interactions=%d" % _interactions.size())
-	_check("HUD shows 'Searched' without a key", _label("PromptLabel").text == "Searched"
+	# Found items move straight into the backpack (Milestone 7).
+	var found := (_scene.get_node("Player/Inventory") as InventoryComponent).get_stacks()
+	var want_status := "Empty" if found.is_empty() else "Searched"
+	_check("HUD shows '%s' without a key" % want_status, _label("PromptLabel").text == want_status
 			and not (_hud.get_node("%KeyChip") as Control).visible, "'%s'" % _label("PromptLabel").text)
-	_check("search feedback message shown", _label("MessageLabel").text == "Nothing useful here."
-			and _label("MessageLabel").modulate.a > 0.5, "'%s'" % _label("MessageLabel").text)
+	if found.is_empty():
+		_check("search feedback: 'Nothing useful here.'", _label("MessageLabel").text == "Nothing useful here."
+				and _label("MessageLabel").modulate.a > 0.5, "'%s'" % _label("MessageLabel").text)
+	else:
+		_check("search feedback: found-items panel", _hud.is_loot_visible() or _label("LootHeader").visible,
+				"%s" % [found])
 	await _wait(it.hold_time + 0.2)
 	Input.action_release("interact")
 	await _wait(0.05)

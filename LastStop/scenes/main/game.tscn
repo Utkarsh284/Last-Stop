@@ -13,6 +13,7 @@
 [ext_resource type="PackedScene" path="res://scenes/player/player.tscn" id="11_player"]
 [ext_resource type="Script" path="res://scripts/systems/mouse_capture.gd" id="12_capture"]
 [ext_resource type="PackedScene" path="res://scenes/ui/hud.tscn" id="13_hud"]
+[ext_resource type="PackedScene" path="res://scenes/ui/inventory_screen.tscn" id="14_inventory"]
 
 [sub_resource type="ProceduralSkyMaterial" id="SkyMat_dusk"]
 sky_top_color = Color(0.16, 0.17, 0.18, 1)
@@ -105,3 +106,5 @@ station_root = NodePath("../StationRoot")
 script = ExtResource("12_capture")
 
 [node name="HUD" parent="." instance=ExtResource("13_hud")]
+
+[node name="InventoryScreen" parent="." instance=ExtResource("14_inventory")]

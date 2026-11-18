@@ -502,7 +502,7 @@ func _build_shelf_unit() -> void:
 	_save(TRAIN_PROPS + "shelf_unit.tscn")
 
 
-## 0.9 m × 0.5 m × 1.9 m two-door metal locker. Becomes train storage in Milestone 7.
+## 0.9 m × 0.5 m × 1.9 m two-door metal locker. Train storage aboard; a loot container at stations.
 func _build_storage_locker() -> void:
 	var r := _begin(StaticBody3D.new(), "StorageLocker")
 	box(r, "Body", Vector3(0.9, 1.84, 0.5), Vector3(0, 0.98, 0), m_locker)
@@ -653,6 +653,12 @@ func _build_train() -> void:
 	aboard.monitorable = false
 	_own(aboard, r)
 	collider_box(aboard, Vector3(2.7, 2.3, 17.8), Vector3.ZERO)
+
+	# Train storage contents; opened through the storage locker (TrainController).
+	var store: Node = load("res://scripts/inventory/inventory_component.gd").new()
+	store.name = "Storage"
+	store.slot_count = 40
+	_own(store, r)
 
 	var spawn := Marker3D.new()
 	spawn.name = "PlayerSpawn"
@@ -830,7 +836,8 @@ func _build_interior(r: Node) -> void:
 	instance(storage, TRAIN_PROPS + "workbench.tscn", "Workbench", Vector3(HALF_W - 0.325, f, 4.4), -90)
 	instance(storage, ENV_PROPS + "oil_drum.tscn", "FuelDrum", Vector3(1.05, f, 6.1))
 	instance(storage, ENV_PROPS + "oil_drum.tscn", "FuelDrum2", Vector3(1.05, f, 6.75), 40)
-	instance(storage, TRAIN_PROPS + "storage_locker.tscn", "StorageLocker", Vector3(HALF_W - 0.25, f, 8.0), -90)
+	var locker := instance(storage, TRAIN_PROPS + "storage_locker.tscn", "StorageLocker", Vector3(HALF_W - 0.25, f, 8.0), -90)
+	interactable(locker, "Storage locker", "Open storage")
 	instance(storage, ENV_PROPS + "crate.tscn", "Crate", Vector3(-1.0, f, 8.5), -8)
 	var storage_lamp: OmniLight3D = instance(storage, ENV_PROPS + "hanging_lamp.tscn", "StorageLamp", Vector3(0, CEIL_Y - LAMP_DROP, 6.2))
 	storage_lamp.light_energy = 1.0
@@ -1075,25 +1082,26 @@ func _merged_boxes(parts: Array, mat: Material) -> ArrayMesh:
 	return mesh
 
 
-## Display name and search time (s) per loot container prop.
+## Display name, search time (s) and loot table (resources/loot_tables/) per
+## loot container prop.
 const LOOT_INFO := {
-	"crate": ["Crate", 1.0],
-	"crate_small": ["Small crate", 0.8],
-	"suitcase": ["Suitcase", 1.0],
-	"luggage_cart": ["Luggage cart", 1.2],
-	"vending_machine": ["Vending machine", 1.5],
-	"filing_cabinet": ["Filing cabinet", 1.2],
-	"safe": ["Safe", 2.5],
-	"storage_locker": ["Locker", 1.2],
-	"drinks_fridge": ["Drinks fridge", 1.0],
-	"cash_register": ["Till", 1.0],
-	"workbench": ["Workbench", 1.2],
-	"car_wreck": ["Car wreck", 2.0],
+	"crate": ["Crate", 1.0, "crate"],
+	"crate_small": ["Small crate", 0.8, "crate"],
+	"suitcase": ["Suitcase", 1.0, "luggage"],
+	"luggage_cart": ["Luggage cart", 1.2, "luggage"],
+	"vending_machine": ["Vending machine", 1.5, "vending"],
+	"filing_cabinet": ["Filing cabinet", 1.2, "office"],
+	"safe": ["Safe", 2.5, "safe"],
+	"storage_locker": ["Locker", 1.2, "locker"],
+	"drinks_fridge": ["Drinks fridge", 1.0, "drinks_fridge"],
+	"cash_register": ["Till", 1.0, "office"],
+	"workbench": ["Workbench", 1.2, "workshop"],
+	"car_wreck": ["Car wreck", 2.0, "workshop"],
 }
 
 
-## Instances a prop as a loot container: tagged "loot_container" and given a
-## one-shot, hold-to-search Interactable. Milestone 6 fills it with loot.
+## Instances a prop as a loot container: tagged "loot_container", given a
+## one-shot, hold-to-search Interactable and a LootContainer with its table.
 func loot(parent: Node, path: String, node_name: String, pos: Vector3, rot_y_deg: float = 0.0) -> Node3D:
 	var n := instance(parent, path, node_name, pos, rot_y_deg)
 	n.add_to_group("loot_container", true)
@@ -1101,6 +1109,10 @@ func loot(parent: Node, path: String, node_name: String, pos: Vector3, rot_y_deg
 	var it := interactable(n, info[0], "Search", info[1])
 	it.one_shot = true
 	it.used_label = "Searched"
+	var lc: Node = load("res://scripts/loot/loot_container.gd").new()
+	lc.name = "LootContainer"
+	lc.loot_table = load("res://resources/loot_tables/%s.tres" % info[2])
+	_own(lc, n)
 	return n
 
 

@@ -1,0 +1,43 @@
+[gd_resource type="Resource" script_class="LootTable" format=3]
+
+[ext_resource type="Script" path="res://scripts/loot/loot_entry.gd" id="1_entry"]
+[ext_resource type="Script" path="res://scripts/loot/loot_table.gd" id="1_table"]
+[ext_resource type="Resource" path="res://resources/items/scrap_metal.tres" id="2_scrap_metal"]
+[ext_resource type="Resource" path="res://resources/items/canned_food.tres" id="3_canned_food"]
+[ext_resource type="Resource" path="res://resources/items/bottled_water.tres" id="4_bottled_water"]
+[ext_resource type="Resource" path="res://resources/items/battery.tres" id="5_battery"]
+
+[sub_resource type="Resource" id="Entry_1"]
+script = ExtResource("1_entry")
+item = ExtResource("2_scrap_metal")
+weight = 6
+min_quantity = 2
+max_quantity = 5
+
+[sub_resource type="Resource" id="Entry_2"]
+script = ExtResource("1_entry")
+item = ExtResource("3_canned_food")
+weight = 3
+min_quantity = 1
+max_quantity = 2
+
+[sub_resource type="Resource" id="Entry_3"]
+script = ExtResource("1_entry")
+item = ExtResource("4_bottled_water")
+weight = 3
+min_quantity = 1
+max_quantity = 2
+
+[sub_resource type="Resource" id="Entry_4"]
+script = ExtResource("1_entry")
+item = ExtResource("5_battery")
+weight = 2
+min_quantity = 1
+max_quantity = 1
+
+[resource]
+script = ExtResource("1_table")
+entries = Array[ExtResource("1_entry")]([SubResource("Entry_1"), SubResource("Entry_2"), SubResource("Entry_3"), SubResource("Entry_4")])
+empty_chance = 0.25
+min_picks = 1
+max_picks = 2

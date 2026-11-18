@@ -33,7 +33,11 @@ const META := &"interactable"
 ## When true, the object can be used only once (e.g. searching a container).
 @export var one_shot: bool = false
 ## Shown instead of the action once a one-shot object has been used.
-@export var used_label: String = "Used"
+@export var used_label: String = "Used":
+	set(value):
+		if used_label != value:
+			used_label = value
+			changed.emit()
 ## When false, the object can't be used. If [member disabled_reason] is set it
 ## is still focused and the reason is shown; otherwise it is ignored entirely.
 @export var enabled: bool = true:

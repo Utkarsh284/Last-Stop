@@ -1,9 +1,10 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene format=3]
 
 [ext_resource type="Script" path="res://scripts/player/player_controller.gd" id="1_ctrl"]
 [ext_resource type="Script" path="res://scripts/player/mouse_look.gd" id="2_look"]
 [ext_resource type="Script" path="res://scripts/player/camera_rumble.gd" id="3_rumble"]
 [ext_resource type="Script" path="res://scripts/interaction/interaction_ray.gd" id="4_ray"]
+[ext_resource type="Script" path="res://scripts/inventory/inventory_component.gd" id="5_inv"]
 
 [sub_resource type="CapsuleShape3D" id="Shape_body"]
 radius = 0.35
@@ -28,3 +29,6 @@ near = 0.05
 
 [node name="InteractionRay" type="Node3D" parent="Head/Camera3D"]
 script = ExtResource("4_ray")
+
+[node name="Inventory" type="Node" parent="."]
+script = ExtResource("5_inv")

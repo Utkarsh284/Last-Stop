@@ -1,0 +1,274 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/inventory_screen.gd" id="1_screen"]
+[ext_resource type="Theme" path="res://ui/themes/game_theme.tres" id="2_theme"]
+
+[sub_resource type="LabelSettings" id="LS_pane_title"]
+font_size = 15
+font_color = Color(0.86, 0.58, 0.32, 1)
+
+[sub_resource type="LabelSettings" id="LS_capacity"]
+font_size = 15
+font_color = Color(0.62, 0.6, 0.56, 1)
+
+[sub_resource type="LabelSettings" id="LS_name"]
+font_size = 28
+font_color = Color(0.94, 0.91, 0.85, 1)
+
+[sub_resource type="LabelSettings" id="LS_category"]
+font_size = 15
+font_color = Color(0.62, 0.6, 0.56, 1)
+
+[sub_resource type="LabelSettings" id="LS_body"]
+font_size = 17
+font_color = Color(0.8, 0.77, 0.71, 1)
+line_spacing = 4.0
+
+[sub_resource type="LabelSettings" id="LS_meta"]
+font_size = 15
+font_color = Color(0.62, 0.6, 0.56, 1)
+
+[sub_resource type="LabelSettings" id="LS_feedback"]
+font_size = 15
+font_color = Color(0.86, 0.58, 0.32, 1)
+
+[sub_resource type="LabelSettings" id="LS_empty"]
+font_size = 16
+font_color = Color(0.5, 0.49, 0.46, 1)
+
+[sub_resource type="LabelSettings" id="LS_hints"]
+font_size = 15
+font_color = Color(0.55, 0.54, 0.5, 1)
+
+[node name="InventoryScreen" type="CanvasLayer"]
+layer = 5
+visible = false
+script = ExtResource("1_screen")
+
+[node name="Root" type="Control" parent="."]
+unique_name_in_owner = true
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("2_theme")
+
+[node name="Backdrop" type="ColorRect" parent="Root"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.015, 0.015, 0.015, 0.74)
+
+[node name="Center" type="CenterContainer" parent="Root"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Layout" type="VBoxContainer" parent="Root/Center"]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 18
+
+[node name="Filters" type="HBoxContainer" parent="Root/Center/Layout"]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 8
+alignment = 1
+
+[node name="Columns" type="HBoxContainer" parent="Root/Center/Layout"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 18
+
+[node name="PlayerPane" type="PanelContainer" parent="Root/Center/Layout/Columns"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 0
+theme_type_variation = &"Pane"
+
+[node name="Rows" type="VBoxContainer" parent="Root/Center/Layout/Columns/PlayerPane"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="Header" type="HBoxContainer" parent="Root/Center/Layout/Columns/PlayerPane/Rows"]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="Root/Center/Layout/Columns/PlayerPane/Rows/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "BACKPACK"
+label_settings = SubResource("LS_pane_title")
+
+[node name="PlayerCapacity" type="Label" parent="Root/Center/Layout/Columns/PlayerPane/Rows/Header"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "0 / 20"
+label_settings = SubResource("LS_capacity")
+
+[node name="PlayerGrid" type="GridContainer" parent="Root/Center/Layout/Columns/PlayerPane/Rows"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/h_separation = 8
+theme_override_constants/v_separation = 8
+columns = 5
+
+[node name="DetailPane" type="PanelContainer" parent="Root/Center/Layout/Columns"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(380, 0)
+layout_mode = 2
+theme_type_variation = &"Pane"
+
+[node name="DetailBody" type="VBoxContainer" parent="Root/Center/Layout/Columns/DetailPane"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="IconWell" type="PanelContainer" parent="Root/Center/Layout/Columns/DetailPane/DetailBody"]
+custom_minimum_size = Vector2(0, 176)
+layout_mode = 2
+theme_type_variation = &"Well"
+
+[node name="DetailIcon" type="TextureRect" parent="Root/Center/Layout/Columns/DetailPane/DetailBody/IconWell"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(128, 128)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Gap" type="Control" parent="Root/Center/Layout/Columns/DetailPane/DetailBody"]
+custom_minimum_size = Vector2(0, 4)
+layout_mode = 2
+mouse_filter = 2
+
+[node name="DetailName" type="Label" parent="Root/Center/Layout/Columns/DetailPane/DetailBody"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(336, 0)
+layout_mode = 2
+label_settings = SubResource("LS_name")
+autowrap_mode = 3
+
+[node name="CategoryRow" type="HBoxContainer" parent="Root/Center/Layout/Columns/DetailPane/DetailBody"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="DetailSwatch" type="ColorRect" parent="Root/Center/Layout/Columns/DetailPane/DetailBody/CategoryRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(8, 8)
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 2
+
+[node name="DetailCategory" type="Label" parent="Root/Center/Layout/Columns/DetailPane/DetailBody/CategoryRow"]
+unique_name_in_owner = true
+layout_mode = 2
+label_settings = SubResource("LS_category")
+
+[node name="DetailDescription" type="Label" parent="Root/Center/Layout/Columns/DetailPane/DetailBody"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(336, 76)
+layout_mode = 2
+label_settings = SubResource("LS_body")
+autowrap_mode = 3
+
+[node name="DetailStack" type="Label" parent="Root/Center/Layout/Columns/DetailPane/DetailBody"]
+unique_name_in_owner = true
+layout_mode = 2
+label_settings = SubResource("LS_meta")
+
+[node name="Spacer" type="Control" parent="Root/Center/Layout/Columns/DetailPane/DetailBody"]
+layout_mode = 2
+size_flags_vertical = 3
+mouse_filter = 2
+
+[node name="Feedback" type="Label" parent="Root/Center/Layout/Columns/DetailPane/DetailBody"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(336, 0)
+layout_mode = 2
+label_settings = SubResource("LS_feedback")
+autowrap_mode = 3
+
+[node name="Actions" type="VBoxContainer" parent="Root/Center/Layout/Columns/DetailPane/DetailBody"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="TransferButton" type="Button" parent="Root/Center/Layout/Columns/DetailPane/DetailBody/Actions"]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_default_cursor_shape = 2
+text = "Deposit in storage"
+
+[node name="DiscardButton" type="Button" parent="Root/Center/Layout/Columns/DetailPane/DetailBody/Actions"]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_default_cursor_shape = 2
+text = "Discard"
+
+[node name="EmptyState" type="Label" parent="Root/Center/Layout/Columns/DetailPane"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(336, 0)
+layout_mode = 2
+size_flags_vertical = 1
+text = "Select an item to see what it is."
+label_settings = SubResource("LS_empty")
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
+
+[node name="StoragePane" type="PanelContainer" parent="Root/Center/Layout/Columns"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 0
+theme_type_variation = &"Pane"
+
+[node name="Rows" type="VBoxContainer" parent="Root/Center/Layout/Columns/StoragePane"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="Header" type="HBoxContainer" parent="Root/Center/Layout/Columns/StoragePane/Rows"]
+layout_mode = 2
+
+[node name="StorageTitle" type="Label" parent="Root/Center/Layout/Columns/StoragePane/Rows/Header"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "TRAIN STORAGE"
+label_settings = SubResource("LS_pane_title")
+
+[node name="StorageCapacity" type="Label" parent="Root/Center/Layout/Columns/StoragePane/Rows/Header"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "0 / 40"
+label_settings = SubResource("LS_capacity")
+
+[node name="StorageGrid" type="GridContainer" parent="Root/Center/Layout/Columns/StoragePane/Rows"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/h_separation = 8
+theme_override_constants/v_separation = 8
+columns = 5
+
+[node name="DepositAllButton" type="Button" parent="Root/Center/Layout/Columns/StoragePane/Rows"]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_default_cursor_shape = 2
+text = "Deposit everything"
+
+[node name="Hints" type="Label" parent="Root/Center/Layout"]
+unique_name_in_owner = true
+layout_mode = 2
+label_settings = SubResource("LS_hints")
+horizontal_alignment = 1

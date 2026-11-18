@@ -7,9 +7,14 @@ extends Node
 signal captured_changed(captured: bool)
 
 var captured: bool = false
+## True while a full-screen UI (inventory) owns the cursor: Esc, clicks and
+## focus changes are left to that UI instead of (re)capturing the mouse.
+var ui_open: bool = false
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	if ui_open:
+		return
 	if event.is_action_pressed("pause"):
 		set_captured(false)
 	elif not captured and _is_left_click(event):
@@ -17,7 +22,7 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func _notification(what: int) -> void:
-	if what == NOTIFICATION_APPLICATION_FOCUS_OUT and is_node_ready():
+	if what == NOTIFICATION_APPLICATION_FOCUS_OUT and is_node_ready() and not ui_open:
 		set_captured(false)
 
 
